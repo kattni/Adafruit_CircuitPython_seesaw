@@ -107,7 +107,8 @@ _NEOPIXEL_SHOW = const(0x05)
 
 _TOUCH_CHANNEL_OFFSET = const(0x10)
 
-_HW_ID_CODE = const(0x55)
+_HW_ID_CODE_SAMD = const(0x55)
+_HW_ID_CODE_AT = const(0x87)
 _EEPROM_I2C_ADDR = const(0x3F)
 
 _ENCODER_STATUS = const(0x00)
@@ -148,11 +149,12 @@ class Seesaw:
 
         chip_id = self.read8(_STATUS_BASE, _STATUS_HW_ID)
 
-        if chip_id != _HW_ID_CODE:
+        if chip_id != _HW_ID_CODE_SAMD and chip_id != _HW_ID_CODE_AT:
             raise RuntimeError(
                 "Seesaw hardware ID returned (0x{:x}) is not "
-                "correct! Expected 0x{:x}. Please check your wiring.".format(
-                    chip_id, _HW_ID_CODE
+                "correct! Expected 0x{:x} for SAMD or 0x{:x} for ATtiny. Please check your"
+                "wiring.".format(
+                    chip_id, _HW_ID_CODE_SAMD, _HW_ID_CODE_AT
                 )
             )
 
@@ -166,6 +168,10 @@ class Seesaw:
             from adafruit_seesaw.robohat import MM1_Pinmap
 
             self.pin_mapping = MM1_Pinmap
+        elif chip_id == _HW_ID_CODE_AT:
+            from adafruit_seesaw.attiny8x7 import ATtiny8x7_Pinmap
+
+            self.pin_mapping = ATtiny8x7_Pinmap
         else:
             from adafruit_seesaw.samd09 import SAMD09_Pinmap
 
